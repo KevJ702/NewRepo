@@ -1,5 +1,4 @@
-﻿
-using LoadDWHVentas.Data.Context.Entities.Northwind;
+﻿using LoadDWHVentas.Data.Entities.Northwind;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoadDWHVentas.Data.Context

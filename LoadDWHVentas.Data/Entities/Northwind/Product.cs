@@ -1,4 +1,4 @@
-﻿namespace LoadDWHVentas.Data.Context.Entities.Northwind
+﻿namespace LoadDWHVentas.Data.Entities.Northwind
 {
     public class Product
     {

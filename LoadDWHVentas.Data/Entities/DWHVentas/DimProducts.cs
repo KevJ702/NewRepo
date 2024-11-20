@@ -1,6 +1,5 @@
-﻿
-using System.ComponentModel.DataAnnotations.Schema;
-namespace LoadDWHVentas.Data.Context.Entities.DwVentas
+﻿using System.ComponentModel.DataAnnotations.Schema;
+namespace LoadDWHVentas.Data.Entities.DwVentas
 {
     [Table("DimProducts")]
     public class DimProducts
