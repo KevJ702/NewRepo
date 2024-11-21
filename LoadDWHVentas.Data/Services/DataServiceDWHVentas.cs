@@ -127,6 +127,25 @@ namespace LoadDWHVentas.Data.Services
                 result.Message = $"Error cargando la dimension de clientes: {ex.Message}";
             }
             return result;
+
+
+        }
+
+        private async Task<OperationResult> LoadFactSales()
+        {
+            OperationResult result = new OperationResult();
+
+            try
+            {
+                var ventas = await _northwindContext.VwVentas.AsNoTracking().ToListAsync(); 
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Error cargando el fact de ventas: {ex.Message}";
+            }
+
+            return result;
         }
         public async Task<OperationResult> LoadDWH()
         {
@@ -134,10 +153,13 @@ namespace LoadDWHVentas.Data.Services
 
            try
             {
+
                 await LoadDimEmployees();
                 await LoadDimProducts();
                 await LoadDimCustomers();
                 await LoadDimShippers();
+
+                await LoadFactSales();
             }
             catch (Exception ex)
             {
