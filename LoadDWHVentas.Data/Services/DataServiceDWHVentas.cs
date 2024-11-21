@@ -4,6 +4,7 @@ using LoadDWHVentas.Data.Context;
 using LoadDWHVentas.Data.Entities.DwVentas;
 using LoadDWHVentas.Data.Interfaces;
 using LoadDWHVentas.Data.Result;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoadDWHVentas.Data.Services
 {
@@ -18,14 +19,14 @@ namespace LoadDWHVentas.Data.Services
             _northwindContext = northwindContext;
             _salesContext = salesContext;
         }
-        public async Task<OperationResult> LoadDimEmployees()
+        private async Task<OperationResult> LoadDimEmployees()
         {
             OperationResult  result = new OperationResult();
 
             try
             {
                 // Obtener los empleados de la base de datos Northwind
-                var Employees = _northwindContext.Employees.Select(emp => new DimEmployees() 
+                var Employees = _northwindContext.Employees.AsNoTracking().Select(emp => new DimEmployees() 
                 {
                     EmployeeId = emp.EmployeeId,
                     EmployeeName = string.Concat(emp.FirstName," ",emp.LastName)
@@ -45,7 +46,7 @@ namespace LoadDWHVentas.Data.Services
             return result;
         }
 
-        public async Task<OperationResult> LoadDimProducts()
+        private async Task<OperationResult> LoadDimProducts()
         {
             OperationResult result = new OperationResult();
             try
@@ -59,7 +60,7 @@ namespace LoadDWHVentas.Data.Services
                                  ProductName = product.ProductName,
                                  CategoryName = category.CategoryName,
                                  ProductID = product.ProductId
-                             }).ToList();
+                             }).AsNoTracking().ToList();
 
                 // Carga la dimension de productos categorias
                 await _salesContext.DimProducts.AddRangeAsync(products);
@@ -71,6 +72,24 @@ namespace LoadDWHVentas.Data.Services
                 result.Success = false;
                 result.Message = $"Error cargando la dimension de producto y categoría: {ex.Message}";
             }
+            return result;
+        }
+
+        public async Task<OperationResult> LoadDWH()
+        {
+            OperationResult result = new OperationResult();
+
+           try
+            {
+                await LoadDimEmployees();
+                await LoadDimProducts();
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Error cargando el DWH : {ex.Message}";
+            }
+
             return result;
         }
     }

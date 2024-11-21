@@ -7,9 +7,10 @@ namespace LoadDWHVentas.Data.Interfaces
 {
     public interface IDataServiceDWHVentas
     {
-        Task<OperationResult> LoadDimEmployees();
+        
 
-        Task<OperationResult> LoadDimProducts();
+        Task<OperationResult> LoadDWH();
+
 
     }
 }
