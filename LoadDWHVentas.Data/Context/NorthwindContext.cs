@@ -15,6 +15,10 @@ namespace LoadDWHVentas.Data.Context
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<Shippers> Shippers { get; set; }
+
+        public DbSet<Customers> Customers { get; set; }
         #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using LoadDWHVentas.Data.Entities.DwVentas;
+﻿using LoadDWHVentas.Data.Entities.DWHVentas;
+using LoadDWHVentas.Data.Entities.DwVentas;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoadDWHVentas.Data.Context
@@ -12,6 +13,9 @@ namespace LoadDWHVentas.Data.Context
         #region"Db Sets"
         public DbSet<DimEmployees> DimEmployees { get; set; }
         public DbSet<DimProducts> DimProducts { get; set; }
+        public DbSet<DimShippers> DimShippers { get; set; }
+        public DbSet<DimCustomers> DimCustomers { get; set; }
+
         #endregion
     }
 }

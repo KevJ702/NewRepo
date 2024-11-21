@@ -12,6 +12,6 @@ namespace LoadDWHVentas.Data.Entities.DwVentas
         [Key]
         public int EmployeeKey { get; set; }
 
-        public string? EmployeeName { get; set; }
+        public string EmployeeName { get; set; }
     }
 }

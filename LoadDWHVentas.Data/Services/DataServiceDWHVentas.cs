@@ -1,7 +1,9 @@
 ﻿
 
 using LoadDWHVentas.Data.Context;
+using LoadDWHVentas.Data.Entities.DWHVentas;
 using LoadDWHVentas.Data.Entities.DwVentas;
+using LoadDWHVentas.Data.Entities.Northwind;
 using LoadDWHVentas.Data.Interfaces;
 using LoadDWHVentas.Data.Result;
 using Microsoft.EntityFrameworkCore;
@@ -75,6 +77,57 @@ namespace LoadDWHVentas.Data.Services
             return result;
         }
 
+        private async Task<OperationResult> LoadDimShippers()
+        {
+            OperationResult result = new OperationResult();
+
+            try
+            {
+                // Obtener los transportistas de la base de datos Northwind
+                var Shippers = _northwindContext.Shippers.AsNoTracking().Select(Ship => new DimShippers()
+                {
+                    ShipperID = Ship.ShipperId,
+                    CompanyName = Ship.CompanyName
+                }).ToList();
+
+                // Carga la dimension de transportistas               
+                await _salesContext.DimShippers.AddRangeAsync(Shippers);
+
+                await _salesContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Error cargando la dimension de transportistas: {ex.Message}";
+            }
+            return result;
+        }
+
+        private async Task<OperationResult> LoadDimCustomers()
+        {
+            OperationResult result = new OperationResult();
+
+            try
+            {
+                // Obtener los clientes de la base de datos Northwind
+                var Customers = _northwindContext.Customers.AsNoTracking().Select(Cust => new DimCustomers()
+                {
+                    CustomerName = Cust.CompanyName,
+                    CustomerId = Cust.CustomerId
+                }).ToList();
+
+                // Carga la dimension de clientes                
+                await _salesContext.DimCustomers.AddRangeAsync(Customers);
+
+                await _salesContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Error cargando la dimension de clientes: {ex.Message}";
+            }
+            return result;
+        }
         public async Task<OperationResult> LoadDWH()
         {
             OperationResult result = new OperationResult();
@@ -83,6 +136,8 @@ namespace LoadDWHVentas.Data.Services
             {
                 await LoadDimEmployees();
                 await LoadDimProducts();
+                await LoadDimCustomers();
+                await LoadDimShippers();
             }
             catch (Exception ex)
             {
