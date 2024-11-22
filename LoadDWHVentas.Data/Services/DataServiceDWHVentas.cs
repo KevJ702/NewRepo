@@ -34,8 +34,18 @@ namespace LoadDWHVentas.Data.Services
                     EmployeeName = string.Concat(emp.FirstName," ",emp.LastName)
                 }).ToList();
 
+
+                // Borra los datos  de la tabla Employees si existen
+
+
+                int[] employeeIds = Employees.Select(emp => emp.EmployeeId).ToArray();
+
+                await _salesContext.DimEmployees.Where(cd => employeeIds.Contains(cd.EmployeeId))
+                                                            .AsNoTracking()
+                                                            .ExecuteDeleteAsync();
+
+
                 // Carga la dimension de empleados
-                //If code doesn't work, change The Employees below to a lowercase
                 await _salesContext.DimEmployees.AddRangeAsync(Employees);
 
                 await _salesContext.SaveChangesAsync();
@@ -64,7 +74,18 @@ namespace LoadDWHVentas.Data.Services
                                  ProductID = product.ProductId
                              }).AsNoTracking().ToList();
 
+                
+
+                // Borra los datos  de la tabla Products si existen
+
+                int[] productsIds = products.Select(c => c.ProductID).ToArray();
+
+                await _salesContext.DimProducts.Where(c => productsIds.Contains(c.ProductID))
+                                                .AsNoTracking()
+                                                .ExecuteDeleteAsync();
+
                 // Carga la dimension de productos categorias
+
                 await _salesContext.DimProducts.AddRangeAsync(products);
                 await _salesContext.SaveChangesAsync();
             }
@@ -90,6 +111,13 @@ namespace LoadDWHVentas.Data.Services
                     CompanyName = Ship.CompanyName
                 }).ToList();
 
+                // Borra los datos  de la tabla Shippers si existen
+
+                int[] shipperIds = Shippers.Select(ship => ship.ShipperID).ToArray();
+
+                await _salesContext.DimShippers.Where(ship => shipperIds.Contains(ship.ShipperID))
+                                                            .AsNoTracking()
+                                                            .ExecuteDeleteAsync();
                 // Carga la dimension de transportistas               
                 await _salesContext.DimShippers.AddRangeAsync(Shippers);
 
@@ -116,7 +144,15 @@ namespace LoadDWHVentas.Data.Services
                     CustomerId = Cust.CustomerId
                 }).ToList();
 
-                // Carga la dimension de clientes                
+                // Borra los datos  de la tabla Customers si existen
+                
+                string[] customerIds = Customers.Select(cust => cust.CustomerId).ToArray();
+
+                await _salesContext.DimCustomers.Where(cust => customerIds.Contains(cust.CustomerId))
+                                                .AsNoTracking()
+                                                .ExecuteDeleteAsync();
+
+                // Carga la dimension de clientes
                 await _salesContext.DimCustomers.AddRangeAsync(Customers);
 
                 await _salesContext.SaveChangesAsync();
