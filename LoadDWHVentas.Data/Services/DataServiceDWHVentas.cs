@@ -3,8 +3,8 @@
 using LoadDWHVentas.Data.Context;
 using LoadDWHVentas.Data.Entities.DWHVentas;
 using LoadDWHVentas.Data.Entities.DwVentas;
-using LoadDWHVentas.Data.Entities.Northwind;
 using LoadDWHVentas.Data.Interfaces;
+using LoadDWHVentas.Data.Models;
 using LoadDWHVentas.Data.Result;
 using Microsoft.EntityFrameworkCore;
 
@@ -167,18 +167,97 @@ namespace LoadDWHVentas.Data.Services
 
         }
 
-        private async Task<OperationResult> LoadFactSales()
+        
+
+        private async Task<OperationResult> LoadFactOrder()
+        {
+            OperationResult result = new OperationResult() {Success = true };
+
+            try
+            {
+                var ventas = await _northwindContext.VwVentas.AsNoTracking().ToListAsync();
+
+                int[] ordersId = await _salesContext.FactOrders.Select(cd => cd.OrderNumber).ToArrayAsync();
+
+                if (ordersId.Any())
+                {
+                    await _salesContext.FactOrders.Where(cd => ordersId.Contains(cd.OrderNumber)).AsNoTracking().ExecuteDeleteAsync();
+                }
+
+                foreach (var venta in ventas)
+                {
+                    var customer = await _salesContext.DimCustomers.SingleOrDefaultAsync(cust => cust.CustomerId == venta.CustomerID);
+                    var employee = await _salesContext.DimEmployees.SingleOrDefaultAsync(emp => emp.EmployeeId == venta.employeeId);
+                    var shipper = await _salesContext.DimShippers.SingleOrDefaultAsync(ship => ship.ShipperID == venta.ShipperID);
+                    var product = await _salesContext.DimProducts.SingleOrDefaultAsync(pro => pro.ProductID == venta.ProductId);
+
+
+                    FactOrder factOrder = new FactOrder()
+                    {
+                        Quantity = venta.Quantity.Value,
+                        Country = venta.Country,
+                        CustomerKey = customer.CustomerKey,
+                        EmployeeKey = employee.EmployeeKey,
+                        DateKey = venta.DateKey.Value,
+                        ProductKey = product.ProductKey,
+                        ShipperKey = shipper.ShipperKey,
+                        TotalSales = Convert.ToDecimal(venta.TotalSales)
+
+                    };
+
+                    await _salesContext.FactOrders.AddAsync(factOrder);
+
+                    await _salesContext.SaveChangesAsync();
+                }                
+
+                result.Success = true;
+            }
+        
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Error cargando el fact de ventas: {ex.Message}";
+            }
+
+            return result;
+        }
+        private async Task<OperationResult> LoadFactCustomerServed()
         {
             OperationResult result = new OperationResult();
 
             try
             {
-                var ventas = await _northwindContext.VwVentas.AsNoTracking().ToListAsync(); 
+                var customerServed = await _northwindContext.VwServedCustomers.AsNoTracking().ToListAsync();
+
+                int[] customerIds = _salesContext.FactCustomerServed.Select(cli => cli.ClienteAtendidoId).ToArray();
+
+                if (customerIds.Any())
+                {
+                    await _salesContext.FactCustomerServed.Where(fact => customerIds.Contains(fact.ClienteAtendidoId)).AsNoTracking().ExecuteDeleteAsync();
+                }
+
+                foreach (var customer in customerServed)
+                {                   
+                    var employee = await _salesContext.DimEmployees.SingleOrDefaultAsync(emp => emp.EmployeeId == customer.EmployeeId);
+
+                    await _salesContext.FactCustomerServed.AddAsync(new FactCustomersServed()
+                    {
+                        EmployeeKey = employee.EmployeeKey,
+                        TotalClientes = customer.TotalCustomersServed
+                    });                    
+
+   
+
+                    await _salesContext.SaveChangesAsync();
+                }
+
+                result.Success = true;
             }
+
             catch (Exception ex)
             {
                 result.Success = false;
-                result.Message = $"Error cargando el fact de ventas: {ex.Message}";
+                result.Message = $"Error cargando el fact de clientes atendidos: {ex.Message}";
             }
 
             return result;
@@ -195,7 +274,8 @@ namespace LoadDWHVentas.Data.Services
                 await LoadDimCustomers();
                 await LoadDimShippers();
 
-                await LoadFactSales();
+                await LoadFactOrder();
+                await LoadFactCustomerServed();
             }
             catch (Exception ex)
             {

@@ -1,20 +1,26 @@
-﻿
+﻿#nullable disable
 
 namespace LoadDWHVentas.Data.Entities.Northwind
 {
-    public class VwVenta
+    public  class VwVenta
     {
-        public string CustomerId { get; set; }
+        public string? CustomerID { get; set; }
 
-        public string CustomerName { get; set; }
+        public string? CustomerName { get; set; }
 
-        public int EmployeeId { get; set; }
+        public int employeeId { get; set; }
 
-        public string EmployeeName { get; set; }
+        public string? EmployeeName { get; set; }
 
-        public int ShipperId { get; set; }
+        public int ShipperID { get; set; }
 
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; }
+
+        public string? Country { get; set; }
+
+        public int ProductId { get; set; }
+
+        public string? ProductName { get; set; }
 
         public int? DateKey { get; set; }
 
